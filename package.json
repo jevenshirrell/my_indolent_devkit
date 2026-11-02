@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.4",
+    "zod": "^4.6.7"
+  },
+  "name": "indolent_library",
+  "version": "1.0.0",
+  "description": "Reusable nodejs, mongodb, bcrypt, and other types of modules for future use in projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jevenshirrell/indolent_library.git"
+  },
+  "keywords": [],
+  "author": "Jeven_Shirrell <jshirr790@west-mec.org> (https://github.com/jevenshirrell)",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jevenshirrell/indolent_library/issues"
+  },
+  "homepage": "https://github.com/jevenshirrell/indolent_library#readme",
+  "devDependencies": {
+    "morgan": "^1.12.1",
+    "nodemon": "^3.1.14"
+  }
+}

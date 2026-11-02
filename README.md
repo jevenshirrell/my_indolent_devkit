@@ -1,2 +1,2 @@
 # indolent_library
-Reusable nodejs, mongodb, bcrpt, and other types of modules for future use in  projects
+Reusable nodejs, mongodb, bcrypt, and other types of modules for future use in projects
