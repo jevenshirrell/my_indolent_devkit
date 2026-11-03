@@ -6,7 +6,7 @@
     "mongoose": "^9.11.4",
     "zod": "^4.6.7"
   },
-  "name": "indolent_library",
+  "name": "my_indolent_devkit",
   "version": "1.0.0",
   "description": "Reusable nodejs, mongodb, bcrypt, and other types of modules for future use in projects",
   "main": "index.js",
