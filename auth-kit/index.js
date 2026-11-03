@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs')
 
 module.exports = function createAuth(secret, { timer = '7d', saltRounds = 10 } = {}) {
     if (typeof secret !== 'string' || secret.length === 0) {
-        throw new Error('auth-kit: secret must be a non-empty string');
+        throw new Error('auth-kit: secret must be a non-empty string')
     }
 
     // Hashing
