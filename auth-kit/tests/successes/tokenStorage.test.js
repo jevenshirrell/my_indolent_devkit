@@ -1,4 +1,4 @@
-'use-strict'
+'use strict'
 
 // Tests storing, getting, and clearing a user token
 
