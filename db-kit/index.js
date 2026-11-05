@@ -67,7 +67,7 @@ function createSchema(fields, options = {}) {
 
 // Repository
 function createRepository(model) {
-    if (!model.prototype instanceof mongoose.Model) {
+    if (!(model.prototype instanceof mongoose.Model)) {
         throw new Error('db-kit: invalid mongoose model in repository')
     }
 
