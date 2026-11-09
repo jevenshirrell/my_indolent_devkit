@@ -66,12 +66,12 @@ function createSchema(fields, options = {}) {
 }
 
 // Repository
-function createRepository(model) {
+function buildRepository(model) {
     if (!(model.prototype instanceof mongoose.Model)) {
         throw new Error('db-kit: invalid mongoose model in repository')
     }
 
-    async function findMany(filter = {}, sort = '-createdAt', {limit = 20, skip = 0} = {}) {
+    async function findMany(filter = {}, sort = Object.freeze({createdAt: -1}), {limit = 20, skip = 0} = {}) {
         return await model.find(filter).sort(sort).skip(skip).limit(limit)
     }
     async function findOne(id) {
@@ -96,4 +96,4 @@ function createRepository(model) {
     return {findMany, findOne, create, update, remove}
 }
 
-module.exports = {connectDatabase, disconnectDatabase, isConnected, createSchema, createRepository}
+module.exports = {connectDatabase, disconnectDatabase, isConnected, createSchema, buildRepository}
