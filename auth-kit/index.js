@@ -3,12 +3,13 @@
 
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const {validate, oneOf, optional, startsWith, createGuard, ApiError, SetupError} = require('../guard-kit')
 
+
+const guard = createGuard('auth-kit')
 
 module.exports = function createAuth(secret, { timer = '7d', saltRounds = 10 } = {}) {
-    if (typeof secret !== 'string' || secret.length === 0) {
-        throw new Error('auth-kit: secret must be a non-empty string')
-    }
+    guard.expect(secret, 'secret', validate.nonEmptyString, {setup:true})
 
     // Hashing
     async function hashPassword(pwd) {
@@ -29,13 +30,13 @@ module.exports = function createAuth(secret, { timer = '7d', saltRounds = 10 } =
         try {
             return jwt.verify(token, secret, {algorithms: ['HS256']})
         } catch (err) {
-            throw new Error('Invalid token', {cause: err})
+            throw ApiError.unauthorized('Invalid token', {cause: err})
         }
     }
 
     // Storage
     function createTokenStorage({ storage = globalThis.localStorage, key = 'userToken' } = {}) {
-        if (!storage) throw new Error('auth-kit: no storage')
+        if (!storage) throw new SetupError('auth-kit: no storage')
         return {
             setToken: (tok) => storage.setItem(key, tok),
             getToken: () => storage.getItem(key),

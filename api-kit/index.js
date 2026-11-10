@@ -2,7 +2,10 @@
 
 
 const express = require('express')
+const {validate, oneOf, optional, startsWith, createGuard} = require('../guard-kit')
 
+
+const guard = createGuard('api-kit')
 
 // Response envelopes
 function sendSuccess(res, data, statusCode = 200, extra = {}) {
@@ -30,37 +33,26 @@ const defRoutes = [
 
 function buildRouter(controller, {auth, routes = defRoutes, protect = ['create', 'update', 'remove']} = {}) {
     // validate param input
-    if (!controller || typeof controller !== 'object') {
-        throw new Error(`api-kit: controller must be an object (got ${typeof controller})`)
-    }
-    if (auth && typeof auth !== 'function') {
-        throw new Error(`api-kit: options.auth must be a middleware function (got ${typeof auth})`)
-    }
-    if (!Array.isArray(routes) || routes.length === 0) {
-        throw new Error(`api-kit: routes must be a non-empty array`)
-    }
-    if (protect && !Array.isArray(protect)) {
-        throw new Error(`api-kit: options.protect must be an array`)
-    }
+    guard.expect(controller, 'controller', validate.object, {setup:true})
+    guard.expect(auth, 'auth', optional(validate.function), {setup:true})
+    guard.expect(routes, 'routes', validate.nonEmptyArray, {setup:true})
+    guard.expect(protect, 'protect', optional(validate.nonEmptyArray), {setup:true})
 
     const router = express.Router()
     
     for (const { method, path, func } of routes) {
+        const verb = typeof method === 'string' ? method.toLowerCase() : method
         // validate route input
-        for (const [name, value] of Object.entries({ func, method, path })) {
-            if (typeof value !== 'string' || value === '') {
-                throw new Error(`api-kit: route key '${name}' must be a non-empty string (got ${typeof value})`)
-            }
-        }
-        if (!['get', 'post', 'patch', 'put', 'delete'].includes(method.toLowerCase())) {
-            throw new Error(`api-kit: '${method}' is not a valid HTTP method`)
-        }
-        if (!path.startsWith('/')) {
-            throw new Error(`api-kit: '${path}' is not a valid path`)
-        }
-        if (typeof controller[func] !== 'function') {
-            throw new Error(`api-kit: function '${func}' is missing from controller or not a valid function`)
-        }
+        guard.validateObject(
+            {verb, path, func},
+            {
+                verb:oneOf(['get', 'post', 'patch', 'put', 'delete']),
+                path:startsWith('/'),
+                func:validate.nonEmptyString,
+            },
+            {setup:true}
+        )
+        guard.expect(controller[func], 'controller.func', validate.function, {setup:true})
 
         // add handlers
         const handlers = []
@@ -68,7 +60,7 @@ function buildRouter(controller, {auth, routes = defRoutes, protect = ['create',
         handlers.push(asyncHandler((req, res, next) => controller[func](req, res, next)))
 
         // create route
-        router[method.toLowerCase()](path, ...handlers)
+        router[verb](path, ...handlers)
     }
 
     return router

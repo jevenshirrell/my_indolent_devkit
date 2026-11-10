@@ -2,7 +2,10 @@
 
 
 const mongoose = require('mongoose')
+const {validate, oneOf, optional, startsWith, createGuard, ApiError, SetupError} = require('../guard-kit')
 
+
+const guard = createGuard('db-kit')
 
 // Connection
 let listenersAttached = false
@@ -45,9 +48,7 @@ function isConnected() {
 
 // Schema defaults
 function createSchema(fields, options = {}) {
-    if (!fields || typeof fields !== 'object' || Object.keys(fields).length === 0) {
-        throw new Error('db-kit: no or invalid fields in createSchema')
-    }
+    guard.expect(fields, 'fields', validate.object, {setup:true})
 
     return new mongoose.Schema(fields, {
         timestamps:true,
@@ -67,16 +68,14 @@ function createSchema(fields, options = {}) {
 
 // Repository
 function buildRepository(model) {
-    if (!(model.prototype instanceof mongoose.Model)) {
-        throw new Error('db-kit: invalid mongoose model in repository')
-    }
+    guard.expect(model.prototype, 'model', rule('a mongoose model', (v) => v instanceof mongoose.Model), {setup:true})
 
     async function findMany(filter = {}, sort = Object.freeze({createdAt: -1}), {limit = 20, skip = 0} = {}) {
         return await model.find(filter).sort(sort).skip(skip).limit(limit)
     }
     async function findOne(id) {
         const record = await model.findById(id)
-        if (!record) throw new Error('record not found')
+        if (!record) throw ApiError.notFound()
         return record
     }
     async function create(data) {
@@ -84,12 +83,12 @@ function buildRepository(model) {
     }
     async function update(id, data) {
         const record = await model.findByIdAndUpdate(id, data, { new:true, runValidators:true })
-        if (!record) throw new Error('record not found')
+        if (!record) throw ApiError.notFound()
         return record
     }
     async function remove(id) {
         const record = await model.findByIdAndDelete(id)
-        if (!record) throw new Error('record not found')
+        if (!record) throw ApiError.notFound()
         return record
     }
 

@@ -67,7 +67,11 @@ function oneOf(list) {
 function optional(inner) {
     return rule(`${inner.label}, or omitted`, (v) => v === undefined || inner(v))
 }
- 
+
+function startsWith(prefix) {
+    return rule(`a string starting with '${prefix}'`, (v) => typeof v === 'string' && v.startsWith(prefix))
+}
+
 function describe(value) {
     if (value === null) return 'null'
     if (value === '') return 'an empty string'
@@ -113,4 +117,4 @@ function createGuard(prefix = '') {
 }
 
 
-module.exports = {GuardError, ApiError, SetupError, isApiError, validate, oneOf, optional, createGuard}
+module.exports = {GuardError, ApiError, SetupError, isApiError, rule, validate, oneOf, optional, startsWith, describe, createGuard}
