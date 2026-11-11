@@ -2,7 +2,7 @@
 
 
 const mongoose = require('mongoose')
-const {validate, oneOf, optional, startsWith, createGuard, ApiError, SetupError} = require('../guard-kit')
+const {validate, rule, createGuard, ApiError} = require('../guard-kit')
 
 
 const guard = createGuard('db-kit')
