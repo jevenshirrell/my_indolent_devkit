@@ -6,8 +6,6 @@ const {ApiError, validate, oneOf, optional, startsWith, createGuard} = require('
 
 const guard = createGuard('api-client')
 
-const METHODS = ['get', 'post', 'put', 'patch', 'delete']
-
 // Helpers
 function buildUrl(root, path, query) {
     const params = new URLSearchParams()
@@ -35,15 +33,14 @@ function toApiError(res, body) {
 }
 
 // Client
-function createClient(baseUrl, {getToken, headers = {}, timeout = 10000, fetch: fetchFn = globalThis.fetch} = {}) {
+function createClient(baseUrl, {getToken, headers = {}, timeout = 10000} = {}) {
     // validate param input
     guard.expect(baseUrl, 'baseUrl', validate.nonEmptyString, {setup:true})
     guard.expect(getToken, 'getToken', optional(validate.function), {setup:true})
     guard.expect(headers, 'headers', validate.object, {setup:true})
     guard.expect(timeout, 'timeout', validate.positiveInteger, {setup:true})
-    guard.expect(fetchFn, 'fetch', validate.function, {setup:true})
 
-    const root = baseUrl.replace(/\/+$/, '')
+    const root = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
 
     async function request(method, path, {body, query = {}, headers: extraHeaders = {}} = {}) {
         const verb = typeof method === 'string' ? method.toLowerCase() : method
@@ -52,7 +49,7 @@ function createClient(baseUrl, {getToken, headers = {}, timeout = 10000, fetch: 
         guard.validateObject(
             {method:verb, path},
             {
-                method:oneOf(METHODS),
+                method:oneOf(['get', 'post', 'put', 'patch', 'delete']),
                 path:startsWith('/'),
             },
             {setup:true}
@@ -82,7 +79,7 @@ function createClient(baseUrl, {getToken, headers = {}, timeout = 10000, fetch: 
 
         let res, parsed
         try {
-            res = await fetchFn(buildUrl(root, path, query), {...init, signal:abort.signal})
+            res = await fetch(buildUrl(root, path, query), {...init, signal:abort.signal})
             parsed = await readBody(res)
         } catch (err) {
             const reason = timedOut ? `request timed out after ${timeout}ms` : `network error (${err.message})`
@@ -105,4 +102,4 @@ function createClient(baseUrl, {getToken, headers = {}, timeout = 10000, fetch: 
     }
 }
 
-module.exports = {createClient}
+module.exports = createClient
