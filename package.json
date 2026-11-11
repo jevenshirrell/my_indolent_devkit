@@ -10,7 +10,7 @@
   "description": "Reusable nodejs, mongodb, bcrypt, and other types of modules for future use in projects",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --env-file=.env --test"
   },
   "repository": {
     "type": "git",

@@ -145,7 +145,7 @@ Things that would need a network or a database are faked or run locally:
 - **db-kit's real-database tests** only run when `MONGO_URI` is set. Put it in a `.env` file and run:
 
 ```bash
-npm run test:db
+npm run test
 ```
 
 To run one module's tests: `node --test auth-kit/tests/auth-kit.test.js`.
